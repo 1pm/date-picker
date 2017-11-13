@@ -1,0 +1,33 @@
+body {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    font: 16px Sans-Serif;
+}
+
+input {
+    border: 1px solid #aaa;
+    margin-top: 20px;
+}
+
+.day-picker {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #aaa;
+
+    .year-container, .month-container, .days-container {
+        display: flex;
+
+        >button {
+            flex: 1;
+        }
+
+        >div {
+            flex: 8;
+        }
+    }
+}
