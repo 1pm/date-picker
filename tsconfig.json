@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "sourceMap": true,
+        "noImplicitAny": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "declaration": true,
+        "declarationDir": "./dist/",
+        "jsx": "react",
+        "outDir": "./dist/"
+    },
+    "include": [
+        "./src/**/*.tsx",
+        "./src/**/*.ts",
+        "./test/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "src/index.tsx",
+        "src/TestView.tsx"
+    ]
+}
