@@ -4,10 +4,10 @@ import {HTMLDayPickerTargetElement} from "./types/HTMLDayPickerTargetElement";
 import {HTMLDayPickerElement} from "./types/HTMLDayPickerElement";
 import {ElementPosition} from "./types/ElementPosition";
 import {DateParts} from "./types/DateParts";
-import {createElement, addClass, removeClass, getAbsolutePosition} from "./utils/domUtils";
+import {createElement, addClass, removeClass, getAbsolutePosition, hasClass} from "./utils/domUtils";
 import {GregorianCalendar} from "./calendars/GregorianCalendar";
-import {Icons} from "./icons/Icons";
-import {isFlatDiff} from "./utils/objectUtils";
+import {isSameDate, changeYear, changeMonth, changeDate} from "./utils/dateUtils";
+import {DayPickerValue} from "../../dist/dist/ts/types/HTMLDayPickerElement.d";
 
 export class DayPicker {
     private target : HTMLDayPickerTargetElement<HTMLInputElement>;
@@ -50,12 +50,27 @@ export class DayPicker {
         removeClass(this.root, "day-picker__active");
     }
 
-    public setValue(value : number) : void {
+    public getValue() : number {
+        return this.currentValue;
+    }
+
+    public setValue(value : number, isDisplayed? : boolean) : void {
         if (this.onValueChange) {
             this.onValueChange(value, this.currentValue);
         }
 
+        if (isDisplayed) {
+            this.displayedValue = value;
+        }
+
         this.currentValue = value;
+        // this.target.value = this.currentValue.toString();
+
+        this.renderCalendar();
+    }
+
+    public setDisplayedValue(value : number) : void {
+        this.displayedValue = value;
 
         this.renderCalendar();
     }
@@ -70,10 +85,10 @@ export class DayPicker {
         this.displayedValue = this.currentValue;
 
         this.target.addEventListener("mousedown", this.onInputClick.bind(this));
-        this.target.addEventListener("keyup", this.onInputKeyup.bind(this));
+        this.target.addEventListener("keyup", this.onKeyup.bind(this));
 
         this.root.addEventListener("mousedown", this.onCalendarClick.bind(this));
-        this.root.addEventListener("keyup", this.onCalendarKeyup.bind(this));
+        this.root.addEventListener("keyup", this.onKeyup.bind(this));
 
         window.document.body.addEventListener("mousedown", this.onBodyClick.bind(this));
         window.document.body.appendChild(this.root);
@@ -89,30 +104,62 @@ export class DayPicker {
         this.showCalendar();
     }
 
-    private onInputKeyup(e : KeyboardEvent) : void {
-        if (e.keyCode === 27) {
-            this.hideCalendar();
-        }
-    }
-
     private onCalendarClick(e : MouseEvent) : void {
-        if (e.which !== 1) {
+        const target : HTMLDayPickerElement<HTMLElement> = e.target as HTMLDayPickerElement<HTMLElement>;
+
+        if (e.which !== 1 || !(target instanceof HTMLElement) || !target.dayPickerValue) {
             return;
         }
 
-        console.log("on Cal Click", e);
+        if (
+            hasClass(target, "day-container") &&
+            !hasClass(target, "day-container__disabled") &&
+            !hasClass(target, "day-container__current")
+        ) {
+            this.setValue((target).dayPickerValue);
+        } else if (
+            hasClass(target, "previous-year") ||
+            hasClass(target, "previous-month") ||
+            hasClass(target, "next-year") ||
+            hasClass(target, "next-month")
+        ) {
+            this.setDisplayedValue(target.dayPickerValue);
+        }
     }
 
-    private onCalendarKeyup(e : KeyboardEvent) : void {
-        console.log("on Cal Keyup", e);
+    // Key Code: 27 - ESC, 37 - Arrow Left, 38 - Up, 39 - Right, 40 - Down
+    private onKeyup(e : KeyboardEvent) : void {
+        const displayedDateParts : DateParts = this.calendar.toDateParts(this.displayedValue);
 
         if (e.keyCode === 27) {
             this.hideCalendar();
+        } else if (e.keyCode === 37) {
+            if (e.ctrlKey && e.shiftKey) {
+                this.setDisplayedValue(this.calendar.toTimestamp(changeYear(displayedDateParts, -1)));
+            } else if (e.shiftKey) {
+                this.setDisplayedValue(this.calendar.toTimestamp(changeMonth(displayedDateParts, -1)));
+            } else {
+                this.setValue(this.calendar.toTimestamp(changeDate(displayedDateParts, -1, this.calendar)), true);
+            }
+        } else if (e.keyCode === 38) {
+            this.setValue(this.calendar.toTimestamp(changeDate(displayedDateParts, -7, this.calendar)), true);
+        } else if (e.keyCode === 39) {
+            if (e.ctrlKey && e.shiftKey) {
+                this.setDisplayedValue(this.calendar.toTimestamp(changeYear(displayedDateParts, 1)));
+            } else if (e.shiftKey) {
+                this.setDisplayedValue(this.calendar.toTimestamp(changeMonth(displayedDateParts, 1)));
+            } else {
+                this.setValue(this.calendar.toTimestamp(changeDate(displayedDateParts, 1, this.calendar)), true);
+            }
+        } else if (e.keyCode === 40) {
+            this.setValue(this.calendar.toTimestamp(changeDate(displayedDateParts, 7, this.calendar)), true);
         }
     }
 
     private onBodyClick(e : MouseEvent) : void {
-        if (e.which !== 1 || this.target.contains(e.target as Node) || this.root.contains(e.target as Node)) {
+        const target : HTMLElement = e.target as HTMLElement;
+
+        if (e.which !== 1 || this.target.contains(target) || this.root.contains(target)) {
             return;
         }
 
@@ -120,13 +167,16 @@ export class DayPicker {
     }
 
     private renderCalendar() : void {
-        this.root.innerHTML = "";
-        const df : DocumentFragment = window.document.createDocumentFragment();
+        // Run after all event listeners
+        setTimeout(() => {
+            this.root.innerHTML = "";
+            const df : DocumentFragment = window.document.createDocumentFragment();
 
-        df.appendChild(this.renderHeader());
-        df.appendChild(this.renderMonth());
+            df.appendChild(this.renderHeader());
+            df.appendChild(this.renderMonth());
 
-        this.root.appendChild(df);
+            this.root.appendChild(df);
+        }, 0);
     }
 
     private renderHeader() : HTMLDivElement {
@@ -134,11 +184,31 @@ export class DayPicker {
         const label : string = `${this.calendar.getMonthName(displayedDateParts.month)} ${displayedDateParts.year}`;
         const container : HTMLDivElement = createElement<HTMLDivElement>("div", "header-container");
 
-        container.appendChild(createElement<HTMLDivElement>("div", "previous-year", Icons.previousYear));
-        container.appendChild(createElement<HTMLDivElement>("div", "previous-month", Icons.previousMonth));
+        container.appendChild(createElement<HTMLDayPickerElement<HTMLDivElement>>("div", "previous-year", {
+            attributes: {
+                title: "Previous Year",
+                dayPickerValue: this.calendar.toTimestamp(changeYear(displayedDateParts, -1))
+            }
+        }));
+        container.appendChild(createElement<HTMLDayPickerElement<HTMLDivElement>>("div", "previous-month", {
+            attributes: {
+                title: "Previous Month",
+                dayPickerValue: this.calendar.toTimestamp(changeMonth(displayedDateParts, -1))
+            }
+        }));
         container.appendChild(createElement<HTMLDivElement>("div", "selected-year-month", label));
-        container.appendChild(createElement<HTMLDivElement>("div", "next-month", Icons.nextMonth));
-        container.appendChild(createElement<HTMLDivElement>("div", "next-year", Icons.nextYear));
+        container.appendChild(createElement<HTMLDayPickerElement<HTMLDivElement>>("div", "next-month", {
+            attributes: {
+                title: "Next Month",
+                dayPickerValue: this.calendar.toTimestamp(changeMonth(displayedDateParts, 1))
+            }
+        }));
+        container.appendChild(createElement<HTMLDayPickerElement<HTMLDivElement>>("div", "next-year", {
+            attributes: {
+                title: "Next Year",
+                dayPickerValue: this.calendar.toTimestamp(changeYear(displayedDateParts, 1))
+            }
+        }));
 
         return container;
     }
@@ -182,6 +252,10 @@ export class DayPicker {
     }
 
     private renderDay(dayOfMonth? : number) : HTMLDayPickerElement<HTMLDivElement> {
+        if (typeof dayOfMonth === "undefined") {
+            return createElement<HTMLDivElement>("div", ["day-container", "day-container__disabled"]);
+        }
+
         // Days of month are 0 based, so we need to increase by 1
         dayOfMonth += 1;
 
@@ -193,16 +267,16 @@ export class DayPicker {
         const dayContainer : HTMLDayPickerElement<HTMLDivElement> = createElement<HTMLDayPickerElement<HTMLDivElement>>(
             "div",
             "day-container",
-            dayOfMonth ? dayOfMonth.toString() : ""
+            dayOfMonth.toString()
         );
 
-        dayContainer.dayPickerValue = dayOfMonth;
+        dayContainer.dayPickerValue = this.calendar.toTimestamp(displayedDateParts);;
 
-        if (!isFlatDiff(currentDateParts, displayedDateParts)) {
+        if (!isSameDate(currentDateParts, displayedDateParts)) {
             addClass(dayContainer, "day-container__current");
         }
 
-        if (!isFlatDiff(todayDateParts, displayedDateParts)) {
+        if (!isSameDate(todayDateParts, displayedDateParts)) {
             addClass(dayContainer, "day-container__today");
         }
 

@@ -42,5 +42,3 @@ const picker : Array<DayPicker> = dayPicker("input", {
         console.log("On Value Change", value, oldValue);
     }
 }) as Array<DayPicker>;
-
-picker[0].setValue(Date.now());

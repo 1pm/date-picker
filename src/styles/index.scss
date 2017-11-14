@@ -55,8 +55,33 @@ input {
         width: 25px;
     }
 
+    .previous-year {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='10' height='10' viewBox='0 0 20 20'%3e%3cpath fill='%23000000' d='M14 20c0.128 0 0.256-0.049 0.354-0.146 0.195-0.195 0.195-0.512 0-0.707l-8.646-8.646 8.646-8.646c0.195-0.195 0.195-0.512 0-0.707s-0.512-0.195-0.707 0l-9 9c-0.195 0.195-0.195 0.512 0 0.707l9 9c0.098 0.098 0.226 0.146 0.354 0.146z'%3e%3c/path%3e%3c/svg%3e");
+    }
+
+    .next-year {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='10' height='10' viewBox='0 0 20 20'%3e%3cpath fill='%23000000' d='M5 20c-0.128 0-0.256-0.049-0.354-0.146-0.195-0.195-0.195-0.512 0-0.707l8.646-8.646-8.646-8.646c-0.195-0.195-0.195-0.512 0-0.707s0.512-0.195 0.707 0l9 9c0.195 0.195 0.195 0.512 0 0.707l-9 9c-0.098 0.098-0.226 0.146-0.354 0.146z'%3e%3c/path%3e%3c/svg%3e");
+    }
+
+    .previous-month {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='20' height='20' viewBox='0 0 20 20'%3e%3cpath fill='%23000000' d='M14 20c0.128 0 0.256-0.049 0.354-0.146 0.195-0.195 0.195-0.512 0-0.707l-8.646-8.646 8.646-8.646c0.195-0.195 0.195-0.512 0-0.707s-0.512-0.195-0.707 0l-9 9c-0.195 0.195-0.195 0.512 0 0.707l9 9c0.098 0.098 0.226 0.146 0.354 0.146z'%3e%3c/path%3e%3c/svg%3e");
+    }
+
+    .next-month {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='20' height='20' viewBox='0 0 20 20'%3e%3cpath fill='%23000000' d='M5 20c-0.128 0-0.256-0.049-0.354-0.146-0.195-0.195-0.195-0.512 0-0.707l8.646-8.646-8.646-8.646c-0.195-0.195-0.195-0.512 0-0.707s0.512-0.195 0.707 0l9 9c0.195 0.195 0.195 0.512 0 0.707l-9 9c-0.098 0.098-0.226 0.146-0.354 0.146z'%3e%3c/path%3e%3c/svg%3e");
+    }
+
+    .previous-year, .previous-month, .next-year, .next-month {
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
     .previous-year, .previous-month, .next-year, .next-month, .day-container:not(.day-container__disabled) {
         cursor: pointer;
+
+        &:hover {
+            background-color: #ddd;
+        }
     }
 
     .day-container {
@@ -66,6 +91,9 @@ input {
 
         &.day-container__today {
             box-shadow: 0px 0px 0px 1px #5d0 inset;
+        }
+        &.day-container__disabled {
+            cursor: default;
         }
     }
 }

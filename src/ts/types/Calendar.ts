@@ -4,7 +4,7 @@ export interface Calendar {
     months : Array<string>;
     weekdays : Array<string>;
     toDateParts : (ts : number) => DateParts;
-    toTimestamp : (year : number, month : number, date : number) => number;
+    toTimestamp : (dp : DateParts) => number;
     getYear : (ts : number) => number;
     getMonth : (ts : number) => number;
     getMonthName : (ts : number) => string;

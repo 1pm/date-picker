@@ -17,8 +17,8 @@ export const GregorianCalendar : Calendar = {
             date: GregorianCalendar.getDate(ts),
         };
     },
-    toTimestamp(year : number, month : number, date : number) : number {
-        return new Date(year, month - 1, date).getTime();
+    toTimestamp(dp : DateParts) : number {
+        return new Date(dp.year, dp.month - 1, dp.date).getTime();
     },
     getYear(ts : number) : number {
         return new Date(ts).getFullYear();
@@ -44,7 +44,7 @@ export const GregorianCalendar : Calendar = {
     getWeekdaysInMonth(year : number, month : number) : Array<number> {
         const daysCount : number = GregorianCalendar.daysCountInMonth(year, month);
         const weekdays : Array<number> = [];
-        let weekday : number = GregorianCalendar.getWeekday(GregorianCalendar.toTimestamp(year, month, 1));
+        let weekday : number = GregorianCalendar.getWeekday(GregorianCalendar.toTimestamp({year, month, date: 1}));
 
         for (let i = 0; i < daysCount; i++) {
             weekdays.push(weekday);
