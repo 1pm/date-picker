@@ -12,22 +12,60 @@ input {
 }
 
 .day-picker {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    padding: 10px;
+    align-items: center;
+    background: white;
     border: 1px solid #aaa;
+    display: none;
+    flex-direction: column;
+    font-size: 12px;
+    justify-content: center;
+    padding: 1px;
+    position: absolute;
+    text-align: center;
+    user-select: none;
 
-    .year-container, .month-container, .days-container {
+    &.day-picker__active {
         display: flex;
+    }
 
-        >button {
-            flex: 1;
+    div {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+
+    .month-container {
+        flex-flow: row;
+        flex-direction: column;
+    }
+
+    .selected-year-month {
+        flex: 3;
+        margin: 1px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 83px;
+    }
+
+    .weekday-container, .day-container, .previous-year, .previous-month, .next-year, .next-month {
+        height: 25px;
+        margin: 1px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 25px;
+    }
+
+    .previous-year, .previous-month, .next-year, .next-month, .day-container:not(.day-container__disabled) {
+        cursor: pointer;
+    }
+
+    .day-container {
+        &.day-container__current {
+            background-color: #aaa;
         }
 
-        >div {
-            flex: 8;
+        &.day-container__today {
+            box-shadow: 0px 0px 0px 1px #5d0 inset;
         }
     }
 }
