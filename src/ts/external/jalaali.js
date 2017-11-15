@@ -1,23 +1,7 @@
 /*
-  Expose functions.
-*/
-module.exports =
-{ toJalaali: toJalaali
-, toGregorian: toGregorian
-, isValidJalaaliDate: isValidJalaaliDate
-, isLeapJalaaliYear: isLeapJalaaliYear
-, jalaaliMonthLength: jalaaliMonthLength
-, jalCal: jalCal
-, j2d: j2d
-, d2j: d2j
-, g2d: g2d
-, d2g: d2g
-}
-
-/*
 Converts a Gregorian date to Jalaali.
 */
-function toJalaali(gy, gm, gd) {
+export function toJalaali(gy, gm, gd) {
 if (Object.prototype.toString.call(gy) === '[object Date]') {
   gd = gy.getDate()
   gm = gy.getMonth() + 1
@@ -29,14 +13,14 @@ return d2j(g2d(gy, gm, gd))
 /*
 Converts a Jalaali date to Gregorian.
 */
-function toGregorian(jy, jm, jd) {
+export function toGregorian(jy, jm, jd) {
 return d2g(j2d(jy, jm, jd))
 }
 
 /*
 Checks whether a Jalaali date is valid or not.
 */
-function isValidJalaaliDate(jy, jm, jd) {
+export function isValidJalaaliDate(jy, jm, jd) {
 return  jy >= -61 && jy <= 3177 &&
         jm >= 1 && jm <= 12 &&
         jd >= 1 && jd <= jalaaliMonthLength(jy, jm)
@@ -45,14 +29,14 @@ return  jy >= -61 && jy <= 3177 &&
 /*
 Is this a leap year or not?
 */
-function isLeapJalaaliYear(jy) {
+export function isLeapJalaaliYear(jy) {
 return jalCal(jy).leap === 0
 }
 
 /*
 Number of days in a given month in a Jalaali year.
 */
-function jalaaliMonthLength(jy, jm) {
+export function jalaaliMonthLength(jy, jm) {
 if (jm <= 6) return 31
 if (jm <= 11) return 30
 if (isLeapJalaaliYear(jy)) return 30
@@ -60,7 +44,7 @@ return 29
 }
 
 /*
-This function determines if the Jalaali (Persian) year is
+This export function determines if the Jalaali (Persian) year is
 leap (366-day long) or is the common year (365 days), and
 finds the day in March (Gregorian calendar) of the first
 day of the Jalaali year (jy).
@@ -73,7 +57,7 @@ day of the Jalaali year (jy).
 @see: http://www.astro.uni.torun.pl/~kb/Papers/EMP/PersianC-EMP.htm
 @see: http://www.fourmilab.ch/documents/calendar/
 */
-function jalCal(jy) {
+export function jalCal(jy) {
 // Jalaali years starting the 33-year rule.
 var breaks =  [ -61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210
               , 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178
@@ -138,7 +122,7 @@ Converts a date of the Jalaali calendar to the Julian Day number.
 @param jd Jalaali day (1 to 29/31)
 @return Julian Day number
 */
-function j2d(jy, jm, jd) {
+export function j2d(jy, jm, jd) {
 var r = jalCal(jy)
 return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1
 }
@@ -152,7 +136,7 @@ Converts the Julian Day number to a date in the Jalaali calendar.
   jm: Jalaali month (1 to 12)
   jd: Jalaali day (1 to 29/31)
 */
-function d2j(jdn) {
+export function d2j(jdn) {
 var gy = d2g(jdn).gy // Calculate Gregorian year (gy).
   , jy = gy - 621
   , r = jalCal(jy)
@@ -203,7 +187,7 @@ calendars) up to a few million years into the future.
 @param gd Calendar day of the month (1 to 28/29/30/31)
 @return Julian Day number
 */
-function g2d(gy, gm, gd) {
+export function g2d(gy, gm, gd) {
 var d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4)
     + div(153 * mod(gm + 9, 12) + 2, 5)
     + gd - 34840408
@@ -222,7 +206,7 @@ calendars) to some millions years ahead of the present.
   gm: Calendar month (1 to 12)
   gd: Calendar day of the month M (1 to 28/29/30/31)
 */
-function d2g(jdn) {
+export function d2g(jdn) {
 var j
   , i
   , gd
@@ -241,13 +225,13 @@ return  { gy: gy
 }
 
 /*
-Utility helper functions.
+Utility helper export functions.
 */
 
-function div(a, b) {
+export function div(a, b) {
 return ~~(a / b)
 }
 
-function mod(a, b) {
+export function mod(a, b) {
 return a - ~~(a / b) * b
 }
