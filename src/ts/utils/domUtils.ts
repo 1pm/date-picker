@@ -12,8 +12,8 @@ export function createElement<T extends HTMLElement>(
     if (isString(classNames)) {
         addClass(element, classNames as string);
     } else if (isArray(classNames)) {
-        for (const className of classNames) {
-            addClass(element, className);
+        for (let i; i < classNames.length; i++) {
+            addClass(element, classNames[i]);
         }
     }
 
