@@ -35,6 +35,10 @@ export function changeYear(dp : DateParts, modifier : number) : DateParts {
     return newDp;
 }
 
+export function isBeforeDate(ts1 : number, ts2 : number) : boolean {
+    return ts1 < ts2;
+}
+
 export function changeMonth(dp : DateParts, modifier : number) : DateParts {
     const newDp : DateParts = cloneDateParts(dp);
 

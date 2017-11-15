@@ -25,3 +25,27 @@ export const EVENTS = {
     MOUDOWN: "mousedown",
     KEYDOWN: "keydown",
 };
+
+export const LOCALES = {
+    ENGLISH: "en",
+    PERSIAN: "fa",
+    THAI: "th"
+};
+
+export const SUPPORTED_LOCALES = [
+    LOCALES.ENGLISH,
+    LOCALES.PERSIAN,
+    LOCALES.THAI,
+];
+
+export const CALENDARS = {
+    GREGORIAN: "gregorian",
+    BUDDHIST: "buddhist",
+    IRANIAN: "iranian",
+};
+
+export const SUPPORTED_CALENDARS = [
+    CALENDARS.GREGORIAN,
+    CALENDARS.BUDDHIST,
+    CALENDARS.IRANIAN,
+];

@@ -30,3 +30,7 @@ export function isEmpty(o : any) : boolean {
 
     return Object.keys(o).length === 0;
 }
+
+export function contains(a : Array<any>, o : any) : boolean {
+    return a.indexOf(o) >= 0;
+}
