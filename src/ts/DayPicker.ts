@@ -9,6 +9,7 @@ import {isUndefined, isFunction, isEmpty} from "./utils/codeUtils";
 import {createElement, addClass, removeClass, getAbsolutePosition, hasClass} from "./utils/domUtils";
 import {isSameDate, changeYear, changeMonth, changeDate} from "./utils/dateUtils";
 import {GregorianCalendar} from "./calendars/GregorianCalendar";
+import {BuddhistCalendar} from "./calendars/BuddhistCalendar";
 
 export class DayPicker {
     private target : HTMLDayPickerTargetElement<HTMLInputElement>;
@@ -31,7 +32,7 @@ export class DayPicker {
 
         this.target = target;
         this.target.dayPicker = this;
-        this.calendar = GregorianCalendar;
+        this.calendar = BuddhistCalendar;
         this.currentValue = options.value || Date.now();
         this.format = options.format || "YYYY-MM-DD";
         this.root = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.DAY_PICKER);
