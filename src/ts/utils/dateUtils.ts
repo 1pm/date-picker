@@ -6,30 +6,20 @@ function cloneDateParts(dp : DateParts) : DateParts {
 }
 
 export function convertToWeeks(weekdaysInMonth : Array<number>) : Array<Array<number>> {
-    const weeks : Array<Array<number>> = [];
-
     let last;
-    const res = weekdaysInMonth.reduce((arr, v) => {
-        // check the difference between last value and current
-        // value is 1
-        if (v - last == 1) {
-          // if 1 then push the value into the last array element
-          arr[arr.length - 1][v] = v;
-        } else{
-          // else push it as a new array element
-          var tmp = new Array(7);
-          tmp[v] = v;
-          arr.push(tmp);
-        // update the last element value
-        }
-        last = v;
-        // return the array refernece
-        return arr;
-        // set initial value as empty array
-      }, []);
-      console.log(res);
 
-    return weeks;
+    return weekdaysInMonth.reduce((array, value, i) => {
+        if (value - last === 1) {
+          array[array.length - 1][value] = i + 1;
+        } else {
+          const week = new Array(7);
+          week[value] = i + 1;
+          array.push(week);
+        }
+        last = value;
+
+        return array;
+      }, []);
 }
 
 export function isSameDate(dp1 : DateParts, dp2 : DateParts) : boolean {

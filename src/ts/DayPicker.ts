@@ -33,7 +33,7 @@ export class DayPicker {
 
         this.target = target;
         this.target.dayPicker = this;
-        this.calendar = GregorianCalendar;
+        this.calendar = IranianCalendar;
         this.currentValue = options.value || Date.now();
         this.format = options.format || "YYYY-MM-DD";
         this.root = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.DAY_PICKER);
@@ -211,9 +211,9 @@ export class DayPicker {
     }
 
     private renderHeader() : HTMLDivElement {
+        const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.HEADER_CONTAINER);
         const displayedDateParts : DateParts = this.calendar.toDateParts(this.displayedValue);
         const label : string = `${this.calendar.getMonthName(displayedDateParts.month)} ${displayedDateParts.year}`;
-        const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.HEADER_CONTAINER);
 
         container.appendChild(createElement<HTMLDayPickerElement<HTMLDivElement>>(HTML_TAGS.DIV, CLASS_NAMES.PREVIOUS_YEAR, {
             attributes: {
@@ -245,34 +245,19 @@ export class DayPicker {
     }
 
     private renderMonth() : HTMLDivElement {
+        const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.MONTH_CONTAINER);
         const displayedDateParts : DateParts = this.calendar.toDateParts(this.displayedValue);
         const weekdaysInMonth : Array<number> = this.calendar.getWeekdaysInMonth(
             displayedDateParts.year,
             displayedDateParts.month
         );
-        const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.MONTH_CONTAINER);
+        const weeks : Array<Array<number>> = convertToWeeks(weekdaysInMonth);
+
         container.appendChild(this.renderWeekdays());
-console.log(convertToWeeks(weekdaysInMonth));
-        let weekContainer : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEK_CONTAINER);
 
-        // TODO: refactor
-        weekdaysInMonth.forEach((weekday : number, dayOfMonth : number) => {
-            weekContainer.appendChild(this.renderDay(dayOfMonth));
-
-            if (weekday === 6) {
-                while (weekContainer.children.length < 7) {
-                    weekContainer.insertBefore(this.renderDay(), weekContainer.children[0]);
-                }
-                container.appendChild(weekContainer);
-                weekContainer = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEK_CONTAINER);
-            }
-        });
-
-        while (weekContainer.children.length < 7) {
-            weekContainer.appendChild(this.renderDay());
+        for (let i = 0; i < weeks.length; i++) {
+            container.appendChild(this.renderWeek(weeks[i]));
         }
-
-        container.appendChild(weekContainer);
 
         return container;
     }
@@ -289,13 +274,21 @@ console.log(convertToWeeks(weekdaysInMonth));
         return container;
     }
 
+    private renderWeek(week : Array<number>) : HTMLElement {
+        const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEK_CONTAINER);
+        const days : Array<number> = this.calendar.isRightToLeft !== true ? week : week.slice(0).reverse();
+
+        for (let i = 0; i < days.length; i++) {
+            container.appendChild(this.renderDay(days[i]));
+        }
+
+        return container;
+    }
+
     private renderDay(dayOfMonth? : number) : HTMLDayPickerElement<HTMLDivElement> {
         if (isUndefined(dayOfMonth)) {
             return createElement<HTMLDivElement>(HTML_TAGS.DIV, [CLASS_NAMES.DAY_CONTAINER, CLASS_NAMES.DAY_CONTAINER_DISABLED]);
         }
-
-        // Days of month are 0 based, so we need to increase by 1
-        dayOfMonth += 1;
 
         const todayDateParts : DateParts = this.calendar.toDateParts(Date.now());
         const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);

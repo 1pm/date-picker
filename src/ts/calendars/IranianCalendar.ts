@@ -21,7 +21,9 @@ export const IranianCalendar : Calendar = {
         };
     },
     toTimestamp(dp : DateParts) : number {
-        return CalendarAlgorithms.persiana_to_gregorian(dp.year, dp.month, dp.date);
+        const parts : Array<number> = CalendarAlgorithms.persiana_to_gregorian(dp.year, dp.month, dp.date);
+
+        return new Date(parts[0], parts[1], parts[2]).getTime();
     },
     getYear(ts : number) : number {
         return IranianCalendar.toDateParts(ts).year;
@@ -55,7 +57,7 @@ export const IranianCalendar : Calendar = {
     getWeekdaysInMonth(year : number, month : number) : Array<number> {
         const daysCount : number = IranianCalendar.daysCountInMonth(year, month);
         const weekdays : Array<number> = [];
-        let weekday : number = IranianCalendar.getWeekday(IranianCalendar.toTimestamp({year, month, date: 0}));
+        let weekday : number = IranianCalendar.getWeekday(IranianCalendar.toTimestamp({year, month, date: 1}));
 
         for (let i = 0; i < daysCount; i++) {
             weekdays.push(weekday);
