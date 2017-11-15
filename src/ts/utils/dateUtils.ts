@@ -24,7 +24,7 @@ export function changeMonth(dp : DateParts, modifier : number) : DateParts {
     const monthIndex : number = newDp.month - 1;
 
     if (monthIndex < 0 || monthIndex > 11) {
-        newDp.year += changeYear(newDp, monthIndex > 11 ? 1 : -1).year;
+        newDp.year = changeYear(newDp, monthIndex > 11 ? 1 : -1).year;
         newDp.month = ((monthIndex + 12) % 12) + 1;
     }
 

@@ -1,27 +1,35 @@
 import {ElementPosition} from "../types/ElementPosition";
 import {CreateElementOptions} from "../types/CreateElementOptions";
+import {isString, isArray, isObject} from "./codeUtils";
 
-export function createElement<T extends HTMLElement>(tag : string, classNames? : string | Array<string>, content? : string | CreateElementOptions) : T {
+export function createElement<T extends HTMLElement>(
+    tag : string,
+    classNames? : string | Array<string>,
+    options? : string | CreateElementOptions
+) : T {
     const element : T = window.document.createElement(tag) as T;
 
-    if (typeof classNames === "string") {
-        addClass(element, classNames);
-    } else if (Array.isArray(classNames)) {
+    if (isString(classNames)) {
+        addClass(element, classNames as string);
+    } else if (isArray(classNames)) {
         for (const className of classNames) {
             addClass(element, className);
         }
     }
 
-    if (typeof content === "string") {
-        element.innerHTML = content;
-    } else if (typeof content === "object") {
-        if (content.content) {
-            element.innerHTML = content.content;
+    if (isString(options)) {
+        element.innerHTML = options as string;
+    } else if (isObject(options)) {
+        const content : string = (options as CreateElementOptions).content;
+        const attributes : any = (options as CreateElementOptions).attributes;
+
+        if (content) {
+            element.innerHTML = content;
         }
 
-        if (content.attributes) {
-            for (const attributeName of Object.keys(content.attributes)) {
-                element[attributeName] = content.attributes[attributeName];
+        if (attributes) {
+            for (const attributeName of Object.keys(attributes)) {
+                element[attributeName] = attributes[attributeName];
             }
         }
     }

@@ -53,4 +53,9 @@ export const GregorianCalendar : Calendar = {
 
         return weekdays;
     },
+    format(value : number, format : string) : string {
+        const dp : DateParts = GregorianCalendar.toDateParts(value as number);
+
+        return `${dp.year}-${dp.month}-${dp.date}`;
+    },
 };

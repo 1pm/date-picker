@@ -13,5 +13,6 @@ export interface Calendar {
     getWeekdayName : (weekday : number) => string;
     daysCountInMonth : (year : number, month : number) => number;
     getWeekdaysInMonth : (year : number, month : number) => Array<number>;
+    format : (ts : number, format : string) => string;
     rightToLeft? : boolean;
 };
