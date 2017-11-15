@@ -7,7 +7,7 @@ import {DateParts} from "./types/DateParts";
 import {CLASS_NAMES, HTML_TAGS, EVENTS, SUPPORTED_LOCALES, SUPPORTED_CALENDARS, CALENDARS, LOCALES} from "./constants";
 import {isUndefined, isFunction, isEmpty, contains} from "./utils/codeUtils";
 import {createElement, addClass, removeClass, getAbsolutePosition, hasClass} from "./utils/domUtils";
-import {isSameDate, changeYear, changeMonth, changeDate, convertToWeeks, isBeforeDate} from "./utils/dateUtils";
+import {isSameDate, changeYear, changeMonth, changeDate, convertToWeeks, isBeforeDate, formatDate} from "./utils/dateUtils";
 import {GregorianCalendar} from "./calendars/GregorianCalendar";
 import {BuddhistCalendar} from "./calendars/BuddhistCalendar";
 import {IranianCalendar} from "./calendars/IranianCalendar";
@@ -78,7 +78,7 @@ export class DayPicker {
         }
 
         this.currentValue = value;
-        this.target.value = this.calendar.format(this.currentValue, this.format);
+        this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
 
         this.setDisplayedValue(value);
     }
@@ -158,12 +158,10 @@ export class DayPicker {
             return element.dayPickerValue === this.currentValue;
         });
 
-        if (!isEmpty(selectedElement)) {
-            addClass(selectedElement[0], CLASS_NAMES.DAY_CONTAINER_CURRENT);
-        }
-
         if (isEmpty(selectedElement) || shouldDisplay === true) {
             this.renderRoot();
+        } else if (!isEmpty(selectedElement)) {
+            addClass(selectedElement[0], CLASS_NAMES.DAY_CONTAINER_CURRENT);
         }
     }
 
@@ -172,15 +170,15 @@ export class DayPicker {
         this.root.tabIndex = -1;
         this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
         this.root.style.left = targetPosition.left + "px";
-        this.target.value = this.calendar.format(this.currentValue, this.format);
+        this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
 
         this.displayedValue = this.currentValue;
 
         this.target.addEventListener(EVENTS.MOUDOWN, this.onInputClick.bind(this));
-        this.target.addEventListener(EVENTS.KEYDOWN, this.onKeyup.bind(this));
+        this.target.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
 
         this.root.addEventListener(EVENTS.MOUDOWN, this.onRootClick.bind(this));
-        this.root.addEventListener(EVENTS.KEYDOWN, this.onKeyup.bind(this));
+        this.root.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
 
         window.document.body.addEventListener(EVENTS.MOUDOWN, this.onBodyClick.bind(this));
         window.document.body.appendChild(this.root);
@@ -230,7 +228,7 @@ export class DayPicker {
     }
 
     // Key Code: 27 - ESC, 37 - Left, 38 - Up, 39 - Right, 40 - Down
-    private onKeyup(e : KeyboardEvent) : void {
+    private onKeydown(e : KeyboardEvent) : void {
         const displayedDateParts : DateParts = this.calendar.toDateParts(this.displayedValue);
         const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
         const directionModifier : number = this.calendar.isRightToLeft !== true ? 1 : -1;
@@ -263,6 +261,11 @@ export class DayPicker {
             }
         } else if (e.keyCode === 40) {
             this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, 7, this.calendar)));
+        // // TODO: Implement
+        // } else if (e.target === this.target) {
+        //     debounce(() => {
+        //         console.log(new Date(e.target.value), Date.parse(e.target.value));
+        //     }, 1000)();
         }
     }
 

@@ -1,5 +1,6 @@
 import {DateParts} from "../types/DateParts";
 import {Calendar} from "../types/Calendar";
+import {leftPad} from "./codeUtils";
 
 function cloneDateParts(dp : DateParts) : DateParts {
     return (Object as any).assign({}, dp);
@@ -59,4 +60,16 @@ export function changeDate(dp : DateParts, modifier : number, calendar : Calenda
     ts += modifier * (1000 * 60 * 60 * 24);
 
     return calendar.toDateParts(ts);
+}
+
+// TODO: Implement
+export function formatDate(ts : number, targetType : string, calendar : Calendar, locale? : string) : string {
+    const dp : DateParts = calendar.toDateParts(ts);
+
+    // Format `YYYY-MM-DD` is required for <input type="date">
+    // if (targetType === "date") {
+        return `${dp.year}-${leftPad(dp.month, 2)}-${leftPad(dp.date, 2)}`;
+    // }
+
+    // return
 }

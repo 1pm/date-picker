@@ -1,5 +1,5 @@
 
-export const isArray : (o : any) => boolean = Array.isArray || function name(o : any) : boolean {
+export const isArray : (o : any) => boolean = Array.isArray || function name(o : any): boolean {
     return toString.call(o) === "[object Array]";
 };
 
@@ -33,4 +33,8 @@ export function isEmpty(o : any) : boolean {
 
 export function contains(a : Array<any>, o : any) : boolean {
     return a.indexOf(o) >= 0;
+}
+
+export function leftPad(s : string | number, length : number, c? : string) {
+    return Array(length + 1 - s.toString().length).join(c ? c[0] : "0") + s;
 }
