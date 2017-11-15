@@ -39,6 +39,6 @@ function initFromElement(target : HTMLInputElement, options : DayPickerOptions) 
 
 const picker : Array<DayPicker> = dayPicker("input", {
     onValueChange: (value, oldValue) => {
-        console.log("On Value Change", value, oldValue);
+        // console.log("On Value Change", value, oldValue);
     }
 }) as Array<DayPicker>;

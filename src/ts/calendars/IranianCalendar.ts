@@ -8,7 +8,7 @@ export const IranianCalendar : Calendar = {
         "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"
     ],
     weekdays: [
-        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+        "Yekshanbeh", "Doshanbeh", "Seshhanbeh", "Chaharshanbeh", "Panjshanbeh", "Jomeh", "Shanbeh"
     ],
     isRightToLeft: true,
     toDateParts(ts : number) : DateParts {
@@ -16,8 +16,8 @@ export const IranianCalendar : Calendar = {
 
         return {
             year: parts[0],
-            month: parts[1] + 1,
-            date: parts[2] + 1,
+            month: parts[1],
+            date: parts[2],
         };
     },
     toTimestamp(dp : DateParts) : number {
@@ -32,7 +32,7 @@ export const IranianCalendar : Calendar = {
         return IranianCalendar.toDateParts(ts).month;
     },
     getMonthName(month : number) : string {
-        return IranianCalendar.months[month - 1];
+        return IranianCalendar.months[month];
     },
     getDate(ts : number) : number {
         return IranianCalendar.toDateParts(ts).date;
@@ -44,11 +44,9 @@ export const IranianCalendar : Calendar = {
         return IranianCalendar.weekdays[weekday];
     },
     daysCountInMonth(year : number, month : number) : number {
-        const monthIndex : number = month - 1;
-
-        if (monthIndex < 6) {
+        if (month < 6) {
             return 31;
-        } else if (monthIndex < 12) {
+        } else if (month < 12) {
             return 30;
         }
 
@@ -57,7 +55,7 @@ export const IranianCalendar : Calendar = {
     getWeekdaysInMonth(year : number, month : number) : Array<number> {
         const daysCount : number = IranianCalendar.daysCountInMonth(year, month);
         const weekdays : Array<number> = [];
-        let weekday : number = IranianCalendar.getWeekday(IranianCalendar.toTimestamp({year, month, date: 1}));
+        let weekday : number = (IranianCalendar.getWeekday(IranianCalendar.toTimestamp({year, month, date: 0})));
 
         for (let i = 0; i < daysCount; i++) {
             weekdays.push(weekday);
@@ -69,6 +67,6 @@ export const IranianCalendar : Calendar = {
     format(ts : number, format : string) : string {
         const dp : DateParts = IranianCalendar.toDateParts(ts);
 
-        return `${dp.year}-${dp.month}-${dp.date}`;
+        return `${dp.year}-${dp.month + 1}-${dp.date}`;
     },
 };

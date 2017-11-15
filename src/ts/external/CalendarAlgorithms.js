@@ -8,13 +8,13 @@ export const CalendarAlgorithms = {
     GREGORIAN_EPOCH: 1721425.5,
     PERSIAN_EPOCH: 1948320.5,
     gregorian_to_persiana(ts) {
-        return CalendarAlgorithms.jd_to_persiana(
+        return CalendarAlgorithms.jd_to_persian(
             CalendarAlgorithms.gregorian_to_jd(new Date(ts).getFullYear(), new Date(ts).getMonth(), new Date(ts).getDate())
         );
     },
     persiana_to_gregorian(year, month, day) {
         return CalendarAlgorithms.jd_to_gregorian(
-            CalendarAlgorithms.persiana_to_jd(year, month, day)
+            CalendarAlgorithms.persian_to_jd(year, month, day)
         );
     },
     leap_gregorian(year) {

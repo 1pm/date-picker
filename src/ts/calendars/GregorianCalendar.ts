@@ -17,16 +17,16 @@ export const GregorianCalendar : Calendar = {
         };
     },
     toTimestamp(dp : DateParts) : number {
-        return new Date(dp.year, dp.month - 1, dp.date).getTime();
+        return new Date(dp.year, dp.month, dp.date).getTime();
     },
     getYear(ts : number) : number {
         return new Date(ts).getFullYear();
     },
     getMonth(ts : number) : number {
-        return new Date(ts).getMonth() + 1;
+        return new Date(ts).getMonth();
     },
     getMonthName(month : number) : string {
-        return GregorianCalendar.months[month - 1];
+        return GregorianCalendar.months[month];
     },
     getDate(ts : number) : number {
         return new Date(ts).getDate();
@@ -55,6 +55,6 @@ export const GregorianCalendar : Calendar = {
     format(ts : number, format : string) : string {
         const dp : DateParts = GregorianCalendar.toDateParts(ts);
 
-        return `${dp.year}-${dp.month}-${dp.date}`;
+        return `${dp.year}-${dp.month + 1}-${dp.date}`;
     },
 };

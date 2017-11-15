@@ -252,7 +252,7 @@ export class DayPicker {
             displayedDateParts.month
         );
         const weeks : Array<Array<number>> = convertToWeeks(weekdaysInMonth);
-
+console.log(weeks);
         container.appendChild(this.renderWeekdays());
 
         for (let i = 0; i < weeks.length; i++) {
@@ -267,9 +267,9 @@ export class DayPicker {
         const weekdays : Array<string> = this.calendar.isRightToLeft !== true ?
             this.calendar.weekdays : this.calendar.weekdays.slice(0).reverse();
 
-        this.calendar.weekdays.forEach((weekday) => {
-            container.appendChild(createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAY_CONTAINER, weekday.substring(0, 3)));
-        });
+        for (let i = 0; i < weekdays.length; i++) {
+            container.appendChild(createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAY_CONTAINER, weekdays[i].substring(0, 3)));
+        }
 
         return container;
     }
@@ -302,6 +302,11 @@ export class DayPicker {
         );
 
         dayContainer.dayPickerValue = this.calendar.toTimestamp(displayedDateParts);
+        dayContainer.dataset.year = displayedDateParts.year.toString();
+        dayContainer.dataset.month = displayedDateParts.month.toString();
+        dayContainer.dataset.date = displayedDateParts.date.toString();
+        dayContainer.dataset.dayOfMonth = dayOfMonth.toString();
+        dayContainer.dataset.ts = this.calendar.toTimestamp(displayedDateParts).toString();
 
         if (!isSameDate(currentDateParts, displayedDateParts)) {
             addClass(dayContainer, CLASS_NAMES.DAY_CONTAINER_CURRENT);

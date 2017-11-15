@@ -13,7 +13,7 @@ export const BuddhistCalendar : Calendar = (Object as any).assign({}, GregorianC
         };
     },
     toTimestamp(dp : DateParts) : number {
-        return new Date(dp.year - YEAR_MODIFIER, dp.month - 1, dp.date).getTime();
+        return new Date(dp.year - YEAR_MODIFIER, dp.month, dp.date).getTime();
     },
     getYear(ts : number) : number {
         return new Date(ts).getFullYear() + YEAR_MODIFIER;
@@ -36,6 +36,6 @@ export const BuddhistCalendar : Calendar = (Object as any).assign({}, GregorianC
     format(ts : number, format : string) : string {
         const dp : DateParts = BuddhistCalendar.toDateParts(ts);
 
-        return `${dp.year}-${dp.month}-${dp.date}`;
+        return `${dp.year}-${dp.month + 1}-${dp.date}`;
     },
 });
