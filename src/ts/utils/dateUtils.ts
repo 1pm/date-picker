@@ -9,7 +9,7 @@ export function convertToWeeks(weekdaysInMonth : Array<number>) : Array<Array<nu
     let last;
 
     return weekdaysInMonth.reduce((array, value, i) => {
-// console.log(value, i);
+
         if (value - last === 1) {
           array[array.length - 1][value] = i + 1;
         } else {

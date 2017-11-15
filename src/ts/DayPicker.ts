@@ -151,10 +151,11 @@ export class DayPicker {
         }
     }
 
-    // Key Code: 27 - ESC, 37 - Arrow Left, 38 - Up, 39 - Right, 40 - Down
+    // Key Code: 27 - ESC, 37 - Left, 38 - Up, 39 - Right, 40 - Down
     private onKeyup(e : KeyboardEvent) : void {
         const displayedDateParts : DateParts = this.calendar.toDateParts(this.displayedValue);
         const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
+        const directionModifier : number = this.calendar.isRightToLeft !== true ? 1 : -1;
 
         if ([27, 37, 38, 39, 40].indexOf(e.keyCode) > 0) {
             // Avoid page scrolling
@@ -170,7 +171,7 @@ export class DayPicker {
             } else if (e.shiftKey) {
                 this.setDisplayedValue(this.calendar.toTimestamp(changeMonth(displayedDateParts, -1)), true);
             } else {
-                this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, -1, this.calendar)));
+                this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, -1 * directionModifier, this.calendar)));
             }
         } else if (e.keyCode === 38) {
             this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, -7, this.calendar)));
@@ -180,7 +181,7 @@ export class DayPicker {
             } else if (e.shiftKey) {
                 this.setDisplayedValue(this.calendar.toTimestamp(changeMonth(displayedDateParts, 1)), true);
             } else {
-                this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, 1, this.calendar)));
+                this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, 1 * directionModifier, this.calendar)));
             }
         } else if (e.keyCode === 40) {
             this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, 7, this.calendar)));
@@ -252,7 +253,7 @@ export class DayPicker {
             displayedDateParts.month
         );
         const weeks : Array<Array<number>> = convertToWeeks(weekdaysInMonth);
-console.log(weeks);
+
         container.appendChild(this.renderWeekdays());
 
         for (let i = 0; i < weeks.length; i++) {
@@ -264,11 +265,10 @@ console.log(weeks);
 
     private renderWeekdays() : HTMLDivElement {
         const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAYS_CONTAINER);
-        const weekdays : Array<string> = this.calendar.isRightToLeft !== true ?
-            this.calendar.weekdays : this.calendar.weekdays.slice(0).reverse();
+        const weekdays : Array<string> = this.prepareWeekdays();
 
         for (let i = 0; i < weekdays.length; i++) {
-            container.appendChild(createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAY_CONTAINER, weekdays[i].substring(0, 3)));
+            container.appendChild(createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAY_CONTAINER, weekdays[i]));
         }
 
         return container;
@@ -276,7 +276,7 @@ console.log(weeks);
 
     private renderWeek(week : Array<number>) : HTMLElement {
         const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEK_CONTAINER);
-        const days : Array<number> = this.calendar.isRightToLeft !== true ? week : week.slice(0).reverse();
+        const days : Array<number> = this.prepareWeek(week);
 
         for (let i = 0; i < days.length; i++) {
             container.appendChild(this.renderDay(days[i]));
@@ -317,5 +317,18 @@ console.log(weeks);
         }
 
         return dayContainer;
+    }
+
+    private prepareWeekdays() : Array<string> {
+        const weekdays : Array<string> = this.calendar.isRightToLeft !== true ?
+        this.calendar.weekdays : this.calendar.weekdays.slice(0).reverse();
+
+        return weekdays.map((weekday) => {
+            return weekday.substring(3);
+        });
+    }
+
+    private prepareWeek(week : Array<number>) : Array<number> {
+        return this.calendar.isRightToLeft !== true ? week : week.slice(0).reverse();
     }
 }
