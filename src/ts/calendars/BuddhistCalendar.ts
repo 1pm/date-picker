@@ -6,17 +6,15 @@ const YEAR_MODIFIER = 543;
 
 export const BuddhistCalendar : Calendar = (Object as any).assign({}, GregorianCalendar, {
     toDateParts(ts : number) : DateParts {
+        const date : Date = new Date(ts);
         return {
-            year: BuddhistCalendar.getYear(ts),
-            month: BuddhistCalendar.getMonth(ts),
-            date: BuddhistCalendar.getDate(ts),
+            year: date.getFullYear() + YEAR_MODIFIER,
+            month: date.getMonth(),
+            date: date.getDate(),
         };
     },
     toTimestamp(dp : DateParts) : number {
         return new Date(dp.year - YEAR_MODIFIER, dp.month, dp.date).getTime();
-    },
-    getYear(ts : number) : number {
-        return new Date(ts).getFullYear() + YEAR_MODIFIER;
     },
     daysCountInMonth(year : number, month : number) : number {
         return new Date(year - YEAR_MODIFIER, month % 12, 0).getDate();

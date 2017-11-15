@@ -233,7 +233,7 @@ export class DayPicker {
         const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
         const directionModifier : number = this.calendar.isRightToLeft !== true ? 1 : -1;
 
-        if (contains([27, 37, 38, 39, 40], e.keyCode) {
+        if (contains([27, 37, 38, 39, 40], e.keyCode)) {
             // Avoid page scrolling
             e.preventDefault();
             e.stopPropagation();

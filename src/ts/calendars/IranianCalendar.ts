@@ -25,17 +25,8 @@ export const IranianCalendar : Calendar = {
 
         return new Date(parts.gy, parts.gm - 1, parts.gd).getTime();
     },
-    getYear(ts : number) : number {
-        return IranianCalendar.toDateParts(ts).year;
-    },
-    getMonth(ts : number) : number {
-        return IranianCalendar.toDateParts(ts).month;
-    },
     getMonthName(month : number) : string {
         return IranianCalendar.months[month - 1];
-    },
-    getDate(ts : number) : number {
-        return IranianCalendar.toDateParts(ts).date;
     },
     getWeekday(ts : number) : number {
         return new Date(ts).getDay();

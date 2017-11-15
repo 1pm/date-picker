@@ -10,26 +10,18 @@ export const GregorianCalendar : Calendar = {
         "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
     ],
     toDateParts(ts : number) : DateParts {
+        const date : Date = new Date(ts);
         return {
-            year: GregorianCalendar.getYear(ts),
-            month: GregorianCalendar.getMonth(ts),
-            date: GregorianCalendar.getDate(ts),
+            year: date.getFullYear(),
+            month: date.getMonth(),
+            date: date.getDate(),
         };
     },
     toTimestamp(dp : DateParts) : number {
         return new Date(dp.year, dp.month, dp.date).getTime();
     },
-    getYear(ts : number) : number {
-        return new Date(ts).getFullYear();
-    },
-    getMonth(ts : number) : number {
-        return new Date(ts).getMonth();
-    },
     getMonthName(month : number) : string {
         return GregorianCalendar.months[month];
-    },
-    getDate(ts : number) : number {
-        return new Date(ts).getDate();
     },
     getWeekday(ts : number) : number {
         return new Date(ts).getDay();
