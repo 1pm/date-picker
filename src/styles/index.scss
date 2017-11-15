@@ -44,15 +44,19 @@ input {
         margin: 1px;
         overflow: hidden;
         text-overflow: ellipsis;
-        width: 83px;
+        width: 98px;
+    }
+
+    .weekdays-container {
+        font-weight: bold;
     }
 
     .weekday-container, .day-container, .previous-year, .previous-month, .next-year, .next-month {
-        height: 25px;
+        height: 30px;
         margin: 1px;
         overflow: hidden;
         text-overflow: ellipsis;
-        width: 25px;
+        width: 30px;
     }
 
     .previous-year {

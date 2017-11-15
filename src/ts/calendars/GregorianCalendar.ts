@@ -9,7 +9,6 @@ export const GregorianCalendar : Calendar = {
     weekdays: [
         "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
     ],
-    rightToLeft: false,
     toDateParts(ts : number) : DateParts {
         return {
             year: GregorianCalendar.getYear(ts),
@@ -53,8 +52,8 @@ export const GregorianCalendar : Calendar = {
 
         return weekdays;
     },
-    format(value : number, format : string) : string {
-        const dp : DateParts = GregorianCalendar.toDateParts(value as number);
+    format(ts : number, format : string) : string {
+        const dp : DateParts = GregorianCalendar.toDateParts(ts);
 
         return `${dp.year}-${dp.month}-${dp.date}`;
     },

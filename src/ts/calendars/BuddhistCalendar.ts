@@ -33,8 +33,8 @@ export const BuddhistCalendar : Calendar = (Object as any).assign({}, GregorianC
 
         return weekdays;
     },
-    format(value : number, format : string) : string {
-        const dp : DateParts = BuddhistCalendar.toDateParts(value as number);
+    format(ts : number, format : string) : string {
+        const dp : DateParts = BuddhistCalendar.toDateParts(ts);
 
         return `${dp.year}-${dp.month}-${dp.date}`;
     },

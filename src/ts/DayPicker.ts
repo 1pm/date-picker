@@ -7,9 +7,10 @@ import {DateParts} from "./types/DateParts";
 import {CLASS_NAMES, HTML_TAGS, EVENTS} from "./constants";
 import {isUndefined, isFunction, isEmpty} from "./utils/codeUtils";
 import {createElement, addClass, removeClass, getAbsolutePosition, hasClass} from "./utils/domUtils";
-import {isSameDate, changeYear, changeMonth, changeDate} from "./utils/dateUtils";
+import {isSameDate, changeYear, changeMonth, changeDate, convertToWeeks} from "./utils/dateUtils";
 import {GregorianCalendar} from "./calendars/GregorianCalendar";
 import {BuddhistCalendar} from "./calendars/BuddhistCalendar";
+import {IranianCalendar} from "./calendars/IranianCalendar";
 
 export class DayPicker {
     private target : HTMLDayPickerTargetElement<HTMLInputElement>;
@@ -32,7 +33,7 @@ export class DayPicker {
 
         this.target = target;
         this.target.dayPicker = this;
-        this.calendar = BuddhistCalendar;
+        this.calendar = GregorianCalendar;
         this.currentValue = options.value || Date.now();
         this.format = options.format || "YYYY-MM-DD";
         this.root = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.DAY_PICKER);
@@ -42,7 +43,7 @@ export class DayPicker {
             this.onValueChange = options.onValueChange;
         }
 
-        this.initCalendar();
+        this.initRoot();
     }
 
     public showCalendar() : void {
@@ -73,10 +74,10 @@ export class DayPicker {
     public setDisplayedValue(value : number, shouldDisplay? : boolean) : void {
         this.displayedValue = value;
 
-        this.updateCalendar(shouldDisplay);
+        this.updateRoot(shouldDisplay);
     }
 
-    private updateCalendar(shouldDisplay : boolean) : void {
+    private updateRoot(shouldDisplay : boolean) : void {
         // TODO: refactor
         const currentElement : HTMLElement = this.root.querySelector(`.${CLASS_NAMES.DAY_CONTAINER_CURRENT}`);
 
@@ -94,11 +95,11 @@ export class DayPicker {
         }
 
         if (isEmpty(selectedElement) || shouldDisplay === true) {
-            this.renderCalendar();
+            this.renderRoot();
         }
     }
 
-    private initCalendar() : void {
+    private initRoot() : void {
         const targetPosition : ElementPosition = getAbsolutePosition(this.target);
         this.root.tabIndex = -1;
         this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
@@ -110,13 +111,13 @@ export class DayPicker {
         this.target.addEventListener(EVENTS.MOUDOWN, this.onInputClick.bind(this));
         this.target.addEventListener(EVENTS.KEYDOWN, this.onKeyup.bind(this));
 
-        this.root.addEventListener(EVENTS.MOUDOWN, this.onCalendarClick.bind(this));
+        this.root.addEventListener(EVENTS.MOUDOWN, this.onRootClick.bind(this));
         this.root.addEventListener(EVENTS.KEYDOWN, this.onKeyup.bind(this));
 
         window.document.body.addEventListener(EVENTS.MOUDOWN, this.onBodyClick.bind(this));
         window.document.body.appendChild(this.root);
 
-        this.renderCalendar();
+        this.renderRoot();
     }
 
     private onInputClick(e : MouseEvent) : void {
@@ -127,7 +128,7 @@ export class DayPicker {
         this.showCalendar();
     }
 
-    private onCalendarClick(e : MouseEvent) : void {
+    private onRootClick(e : MouseEvent) : void {
         const target : HTMLDayPickerElement<HTMLElement> = e.target as HTMLDayPickerElement<HTMLElement>;
 
         if (e.which !== 1 || !(target instanceof HTMLElement) || isUndefined(target.dayPickerValue)) {
@@ -146,18 +147,20 @@ export class DayPicker {
             hasClass(target, CLASS_NAMES.NEXT_YEAR) ||
             hasClass(target, CLASS_NAMES.NEXT_MONTH)
         ) {
-            this.setDisplayedValue(target.dayPickerValue);
+            this.setDisplayedValue(target.dayPickerValue, true);
         }
     }
 
     // Key Code: 27 - ESC, 37 - Arrow Left, 38 - Up, 39 - Right, 40 - Down
     private onKeyup(e : KeyboardEvent) : void {
-        // Avoid page scrolling
-        e.preventDefault();
-        e.stopPropagation();
-
         const displayedDateParts : DateParts = this.calendar.toDateParts(this.displayedValue);
         const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
+
+        if ([27, 37, 38, 39, 40].indexOf(e.keyCode) > 0) {
+            // Avoid page scrolling
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
         if (e.keyCode === 27) {
             this.hideCalendar();
@@ -194,7 +197,7 @@ export class DayPicker {
         this.hideCalendar();
     }
 
-    private renderCalendar() : void {
+    private renderRoot() : void {
         // Run after all event listeners
         setTimeout(() => {
             this.root.innerHTML = "";
@@ -248,13 +251,8 @@ export class DayPicker {
             displayedDateParts.month
         );
         const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.MONTH_CONTAINER);
-        const weekdaysContainer : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAYS_CONTAINER);
-
-        this.calendar.weekdays.forEach((weekday) => {
-            weekdaysContainer.appendChild(createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAY_CONTAINER, weekday));
-        });
-        container.appendChild(weekdaysContainer);
-
+        container.appendChild(this.renderWeekdays());
+console.log(convertToWeeks(weekdaysInMonth));
         let weekContainer : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEK_CONTAINER);
 
         // TODO: refactor
@@ -275,6 +273,18 @@ export class DayPicker {
         }
 
         container.appendChild(weekContainer);
+
+        return container;
+    }
+
+    private renderWeekdays() : HTMLDivElement {
+        const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAYS_CONTAINER);
+        const weekdays : Array<string> = this.calendar.isRightToLeft !== true ?
+            this.calendar.weekdays : this.calendar.weekdays.slice(0).reverse();
+
+        this.calendar.weekdays.forEach((weekday) => {
+            container.appendChild(createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.WEEKDAY_CONTAINER, weekday.substring(0, 3)));
+        });
 
         return container;
     }
