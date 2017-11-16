@@ -49,12 +49,30 @@ export function hasClass(element : HTMLElement, className : string) : boolean {
     return element.classList.contains(className);
 }
 
-export function getAbsolutePosition(element : HTMLElement) : ElementPosition {
-    const rect : ClientRect = element.getBoundingClientRect();
-    return {
-        top: rect.top + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-        height: rect.height,
-    };
+export function getAbsolutePosition(target : HTMLElement, root : HTMLElement) : ElementPosition {
+    const rect : ClientRect = target.getBoundingClientRect();
+    const width : number = root.offsetWidth;
+    const height : number = root.offsetHeight;
+
+    const distFromTop : number = rect.top + window.scrollY;
+    const distFromBottom : number = document.body.scrollHeight - distFromTop - rect.height;
+    const distFromLeft : number = rect.left + window.scrollX;
+    const distFromRight : number = document.body.scrollWidth - distFromLeft;
+
+    let top = 0;
+    let left = 0;
+
+    if (distFromBottom < height && distFromTop >= height) {
+        top = distFromTop - height - 5;
+    } else {
+        top = distFromTop + rect.height + 5;
+    }
+
+    if (distFromRight < width && distFromLeft >= width) {
+        left = distFromLeft + rect.width - width;
+    } else {
+        left = distFromLeft;
+    }
+
+    return {top, left, width, height};
 }

@@ -192,9 +192,6 @@ export class DayPicker {
         this.target.addEventListener(EVENTS.MOUDOWN, this.onInputClick.bind(this));
         this.target.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
 
-        const targetPosition : ElementPosition = getAbsolutePosition(this.target);
-        this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
-        this.root.style.left = targetPosition.left + "px";
         this.root.tabIndex = -1;
         this.root.addEventListener(EVENTS.MOUDOWN, this.onRootClick.bind(this));
         this.root.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
@@ -297,9 +294,9 @@ export class DayPicker {
     }
 
     private onWindowResize(e : MouseEvent) : void {
-        const targetPosition : ElementPosition = getAbsolutePosition(this.target);
-        this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
-        this.root.style.left = targetPosition.left + "px";
+        // const targetPosition : ElementPosition = getAbsolutePosition(this.target);
+        // this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
+        // this.root.style.left = targetPosition.left + "px";
     }
 
     private renderRoot() : void {
@@ -312,6 +309,11 @@ export class DayPicker {
             df.appendChild(this.renderMonth());
 
             this.root.appendChild(df);
+
+            const targetPosition : ElementPosition = getAbsolutePosition(this.target, this.root);
+            this.root.style.top = targetPosition.top + "px"; // + targetPosition.height + "px";
+            this.root.style.left = targetPosition.left + "px";
+
         }, 0);
     }
 
