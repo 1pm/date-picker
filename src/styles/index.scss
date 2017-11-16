@@ -11,6 +11,10 @@ input {
     margin-top: 20px;
 }
 
+input[type=date].day-picker-target::-webkit-calendar-picker-indicator, input[type=date].day-picker-target::-webkit-inner-spin-button {
+    display: none;
+}
+
 .day-picker {
     align-items: center;
     background: white;

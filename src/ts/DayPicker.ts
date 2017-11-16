@@ -167,16 +167,16 @@ export class DayPicker {
 
     private initRoot() : void {
         const targetPosition : ElementPosition = getAbsolutePosition(this.target);
-        this.root.tabIndex = -1;
-        this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
-        this.root.style.left = targetPosition.left + "px";
-        this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
-
         this.displayedValue = this.currentValue;
 
+        addClass(this.target, CLASS_NAMES.DAY_PICKER_TARGET);
+        this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
         this.target.addEventListener(EVENTS.MOUDOWN, this.onInputClick.bind(this));
         this.target.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
 
+        this.root.tabIndex = -1;
+        this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
+        this.root.style.left = targetPosition.left + "px";
         this.root.addEventListener(EVENTS.MOUDOWN, this.onRootClick.bind(this));
         this.root.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
 

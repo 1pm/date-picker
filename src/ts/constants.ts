@@ -1,4 +1,5 @@
 export const CLASS_NAMES = {
+    DAY_PICKER_TARGET: "day-picker-target",
     DAY_PICKER: "day-picker",
     DAY_PICKER_ACTIVE: "day-picker__active",
     HEADER_CONTAINER: "header-container",
