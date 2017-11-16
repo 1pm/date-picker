@@ -200,6 +200,7 @@ export class DayPicker {
         this.root.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
 
         window.document.body.addEventListener(EVENTS.MOUDOWN, this.onBodyClick.bind(this));
+        window.addEventListener(EVENTS.RESIZE, this.onWindowResize.bind(this));
         window.document.body.appendChild(this.root);
 
         this.renderRoot();
@@ -293,6 +294,12 @@ export class DayPicker {
         }
 
         this.hideRoot();
+    }
+
+    private onWindowResize(e : MouseEvent) : void {
+        const targetPosition : ElementPosition = getAbsolutePosition(this.target);
+        this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
+        this.root.style.left = targetPosition.left + "px";
     }
 
     private renderRoot() : void {
