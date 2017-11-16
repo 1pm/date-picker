@@ -35,6 +35,10 @@ export function contains(a : Array<any>, o : any) : boolean {
     return a.indexOf(o) >= 0;
 }
 
-export function leftPad(s : string | number, length : number, c? : string) {
+export function filter(a : Array<any>, f : (v : any, i? : number | string) => Array<any>) : Array<any> {
+    return a.filter(f);
+}
+
+export function leftPad(s : string | number, length : number, c? : string) : string {
     return Array(length + 1 - s.toString().length).join(c ? c[0] : "0") + s;
 }

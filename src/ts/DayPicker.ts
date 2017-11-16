@@ -5,9 +5,9 @@ import {HTMLDayPickerElement} from "./types/HTMLDayPickerElement";
 import {ElementPosition} from "./types/ElementPosition";
 import {DateParts} from "./types/DateParts";
 import {CLASS_NAMES, HTML_TAGS, EVENTS, SUPPORTED_LOCALES, SUPPORTED_CALENDARS, CALENDARS, LOCALES} from "./constants";
-import {isUndefined, isFunction, isEmpty, contains} from "./utils/codeUtils";
+import {isUndefined, isFunction, isEmpty, contains, filter} from "./utils/codeUtils";
 import {createElement, addClass, removeClass, getAbsolutePosition, hasClass} from "./utils/domUtils";
-import {isSameDate, changeYear, changeMonth, changeDate, convertToWeeks, isBeforeDate, formatDate} from "./utils/dateUtils";
+import {isSameDate, changeYear, changeMonth, changeDate, convertToWeeks, isBeforeDate, formatDate, parseDate} from "./utils/dateUtils";
 import {GregorianCalendar} from "./calendars/GregorianCalendar";
 import {BuddhistCalendar} from "./calendars/BuddhistCalendar";
 import {IranianCalendar} from "./calendars/IranianCalendar";
@@ -25,6 +25,8 @@ export class DayPicker {
     private max : number;
     private ishideOnSelect : boolean;
     private onValueChange : (value : number, oldValue? : number) => void;
+    private displayedDays : object;
+    private currentDay : HTMLDivElement;
 
     constructor(target : HTMLDayPickerTargetElement<HTMLInputElement>, options : DayPickerOptions = {}) {
         if (!(target instanceof HTMLInputElement) || !contains(["text", "date"], target.type)) {
@@ -35,23 +37,11 @@ export class DayPicker {
             throw new Error("DayPicker already initialized");
         }
 
-        this.isRootVisible = false;
         this.target = target;
         this.target.dayPicker = this;
-        this.root = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.DAY_PICKER);
-        this.currentValue = options.value || Date.now();
-        this.locale = this.getPreferedLocale(options.locale);
-        this.format = options.format || "YYYY-MM-DD";
-        this.calendar = this.getPreferedCalendar(options.calendar);
-        this.min = (this.root as any).min || options.min;
-        this.max = (this.root as any).max || options.max;
-        this.ishideOnSelect = options.hideOnSelect || true;
+        addClass(this.target, CLASS_NAMES.DAY_PICKER_TARGET);
 
-        if (isFunction(options.onValueChange)) {
-            this.onValueChange = options.onValueChange;
-        }
-
-        this.initRoot();
+        this.init(options);
     }
 
     public showRoot() : void {
@@ -146,37 +136,46 @@ export class DayPicker {
     }
 
     private updateRoot(shouldDisplay : boolean) : void {
-        // TODO: refactor
-        const currentElement : HTMLElement = this.root.querySelector(`.${CLASS_NAMES.DAY_CONTAINER_CURRENT}`);
+        removeClass(this.currentDay, CLASS_NAMES.DAY_CONTAINER_CURRENT);
+        const selectedElement : HTMLDivElement = this.displayedDays[this.currentValue];
 
-        if (!isEmpty(currentElement)) {
-            removeClass(currentElement, CLASS_NAMES.DAY_CONTAINER_CURRENT);
-        }
+        if (isUndefined(selectedElement) || shouldDisplay === true) {
 
-        const dateElements : NodeListOf<Element> = this.root.querySelectorAll(`.${CLASS_NAMES.DAY_CONTAINER}`);
-        const selectedElement = Array.prototype.slice.call(dateElements).filter((element : HTMLDayPickerElement<HTMLElement>) => {
-            return element.dayPickerValue === this.currentValue;
-        });
-
-        if (isEmpty(selectedElement) || shouldDisplay === true) {
             this.renderRoot();
-        } else if (!isEmpty(selectedElement)) {
-            addClass(selectedElement[0], CLASS_NAMES.DAY_CONTAINER_CURRENT);
+        } else if (!isUndefined(selectedElement)) {
+            addClass(selectedElement, CLASS_NAMES.DAY_CONTAINER_CURRENT);
+            this.currentDay = selectedElement;
         }
     }
 
-    private initRoot() : void {
-        const targetPosition : ElementPosition = getAbsolutePosition(this.target);
+    private init(options : DayPickerOptions) : void {
+        this.locale = this.getPreferedLocale(options.locale);
+        this.format = options.format || "YYYY-MM-DD";
+        this.calendar = this.getPreferedCalendar(options.calendar);
+        this.min = (this.target as any).min || options.min;
+        this.max = (this.target as any).max || options.max;
+        this.ishideOnSelect = options.hideOnSelect || true;
+
+        this.isRootVisible = false;
+        this.root = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.DAY_PICKER);
+        this.currentValue = options.value || parseDate(this.target.value, this.calendar) || Date.now();
         this.displayedValue = this.currentValue;
 
-        addClass(this.target, CLASS_NAMES.DAY_PICKER_TARGET);
-        this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
+        if (isFunction(options.onValueChange)) {
+            this.onValueChange = options.onValueChange;
+        }
+
+        if (this.currentValue) {
+            this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
+        }
+
         this.target.addEventListener(EVENTS.MOUDOWN, this.onInputClick.bind(this));
         this.target.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
 
-        this.root.tabIndex = -1;
+        const targetPosition : ElementPosition = getAbsolutePosition(this.target);
         this.root.style.top = targetPosition.top + targetPosition.height + 5 + "px";
         this.root.style.left = targetPosition.left + "px";
+        this.root.tabIndex = -1;
         this.root.addEventListener(EVENTS.MOUDOWN, this.onRootClick.bind(this));
         this.root.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
 
@@ -327,6 +326,7 @@ export class DayPicker {
     }
 
     private renderMonth() : HTMLDivElement {
+        this.displayedDays = {};
         const container : HTMLDivElement = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.MONTH_CONTAINER);
         const displayedDateParts : DateParts = this.calendar.toDateParts(this.displayedValue);
         const weekdaysInMonth : Array<number> = this.calendar.getWeekdaysInMonth(
@@ -384,6 +384,7 @@ export class DayPicker {
         );
 
         dayContainer.dayPickerValue = displayedTimestamp;
+        this.displayedDays[displayedTimestamp] = dayContainer;
 
         if (isBeforeDate(displayedTimestamp, this.min) || isBeforeDate(this.max, displayedTimestamp)) {
             addClass(dayContainer, CLASS_NAMES.DAY_CONTAINER_DISABLED);
@@ -391,6 +392,7 @@ export class DayPicker {
 
         if (!isSameDate(currentDateParts, displayedDateParts)) {
             addClass(dayContainer, CLASS_NAMES.DAY_CONTAINER_CURRENT);
+            this.currentDay = dayContainer;
         }
 
         if (!isSameDate(todayDateParts, displayedDateParts)) {

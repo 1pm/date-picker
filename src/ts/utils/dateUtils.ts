@@ -62,6 +62,20 @@ export function changeDate(dp : DateParts, modifier : number, calendar : Calenda
     return calendar.toDateParts(ts);
 }
 
+export function parseDate(dateString : string, calendar : Calendar) : number {
+    const parts : Array<string> = dateString.split("-");
+
+    if (parts.length !== 3) {
+        return;
+    }
+
+    return calendar.toTimestamp({
+        year: Number(parts[0]),
+        month: Number(parts[1]),
+        date: Number(parts[2]),
+    });
+}
+
 // TODO: Implement
 export function formatDate(ts : number, targetType : string, calendar : Calendar, locale? : string) : string {
     const dp : DateParts = calendar.toDateParts(ts);
