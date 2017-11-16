@@ -7,5 +7,6 @@ export interface DayPickerOptions {
     max? : number;
     hideOnSelect? : boolean;
     isOpen? : boolean;
+    disableOnMobileDate? : boolean;
     onValueChange? : (value : number, oldValue? : number) => void;
 }

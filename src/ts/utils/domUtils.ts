@@ -49,6 +49,10 @@ export function hasClass(element : HTMLElement, className : string) : boolean {
     return element.classList.contains(className);
 }
 
+export function isMobile() : boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 export function getAbsolutePosition(target : HTMLElement, root : HTMLElement) : ElementPosition {
     const rect : ClientRect = target.getBoundingClientRect();
     const width : number = root.offsetWidth;

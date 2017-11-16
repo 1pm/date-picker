@@ -6,7 +6,7 @@ import {ElementPosition} from "./types/ElementPosition";
 import {DateParts} from "./types/DateParts";
 import {CLASS_NAMES, HTML_TAGS, EVENTS, SUPPORTED_LOCALES, SUPPORTED_CALENDARS, CALENDARS, LOCALES} from "./constants";
 import {isUndefined, isFunction, isEmpty, contains, filter, debounce, isString, isNumber, isBoolean} from "./utils/codeUtils";
-import {createElement, addClass, removeClass, getAbsolutePosition, hasClass} from "./utils/domUtils";
+import {createElement, addClass, removeClass, getAbsolutePosition, hasClass, isMobile} from "./utils/domUtils";
 import {isSameDate, changeYear, changeMonth, changeDate, convertToWeeks, isBeforeDate, formatDate, parseDate} from "./utils/dateUtils";
 import {GregorianCalendar} from "./calendars/GregorianCalendar";
 import {BuddhistCalendar} from "./calendars/BuddhistCalendar";
@@ -33,6 +33,11 @@ export class DayPicker {
     constructor(target : HTMLDayPickerTargetElement<HTMLInputElement>, options : DayPickerOptions = {}) {
         if (!(target instanceof HTMLInputElement) || !contains(["text", "date"], target.type)) {
             throw new Error("Day picker can be initialized only on <input type=\"text\"> or <input type=\"date\">");
+        } else if (target.type === "date" && options.disableOnMobileDate !== false && isMobile()) {
+            return;
+        } else if (isMobile()) {
+            target.style.fontSize = "16px";
+            target.readOnly = true;
         }
 
         if (!isUndefined(target.dayPicker)) {
@@ -192,7 +197,7 @@ export class DayPicker {
     }
 
     private addListeners() : void {
-        this.addListener(this.target, EVENTS.MOUDOWN, this.onInputClick);
+        this.addListener(this.target, EVENTS.MOUDOWN, this.onTargetClick);
         this.addListener(this.target, EVENTS.KEYDOWN, this.onKeydown);
         this.addListener(window.document.body, EVENTS.BEFORE_UNLOAD, this.removeListeners);
 
@@ -217,12 +222,19 @@ export class DayPicker {
         }
     }
 
-    private onInputClick(e : MouseEvent) : void {
-        if (e.which !== 1 || this.target.readOnly || this.target.disabled) {
+    private onTargetClick(e : MouseEvent) : void {
+        if (e.which !== 1 || this.target.disabled) {
             return;
         }
 
         this.showRoot();
+
+        if (isMobile()) {
+            setTimeout(() => {
+                this.target.blur();
+                this.root.focus();
+            }, 0);
+        }
     }
 
     private onRootClick(e : MouseEvent) : void {
@@ -230,7 +242,6 @@ export class DayPicker {
 
         if (
             e.which !== 1 ||
-            this.target.readOnly ||
             this.target.disabled ||
             !(target instanceof HTMLElement) ||
             isUndefined(target.dayPickerValue)
@@ -264,13 +275,13 @@ export class DayPicker {
         const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
         const directionModifier : number = this.calendar.isRightToLeft !== true ? 1 : -1;
 
-        if (contains([27, 37, 38, 39, 40], e.keyCode)) {
+        if (contains([13, 27, 37, 38, 39, 40], e.keyCode)) {
             // Avoid page scrolling
             e.preventDefault();
             e.stopPropagation();
         }
 
-        if (e.keyCode === 27) {
+        if (e.keyCode === 13 || e.keyCode === 27) {
             this.hideRoot();
         } else if (e.keyCode === 37) {
             if (e.ctrlKey && e.shiftKey) {
