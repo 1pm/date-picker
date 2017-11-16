@@ -181,6 +181,10 @@ export class DayPicker {
             this.onValueChange = options.onValueChange;
         }
 
+        if (options.isOpen === true) {
+            this.showRoot();
+        }
+
         if (this.currentValue) {
             this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
         }

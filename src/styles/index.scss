@@ -1,31 +1,76 @@
-body {
+$text-color: #000;
+$background-color: #fff;
+$main-color: #aaa;
+$lighter-color: lighten($main-color, 25%);
+$darker-color: darken($main-color, 25%);
+
+$border-width: 1px;
+$font-family: Sans-Serif;
+$font-size: 0.75rem;
+$font-size-subheader: 0.875rem;
+$font-size-header: 1rem;
+
+$day-picker-border-radius: 2px;
+$day-picker-box-shadow: 0 0 5px $main-color;
+$day-container-border-radius: 50%;
+$day-container-size: 35px;
+$day-container-margin: 2px;
+
+$today-color: #5d0;
+$current-color: #aaa;
+$hover-color: rgba(0, 0, 0, 0.2);
+
+$text-color: #000;
+$text-disabled-color: #ddd;
+
+@mixin flex {
     align-items: center;
     display: flex;
     justify-content: center;
-    flex-direction: column;
-    font: 16px Sans-Serif;
+    text-align: center;
 }
 
-input {
-    border: 1px solid #aaa;
-    margin-top: 20px;
+@mixin no-overflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-input[type=date].day-picker-target::-webkit-calendar-picker-indicator, input[type=date].day-picker-target::-webkit-inner-spin-button {
+@mixin box-shadow($color) {
+    box-shadow: 0px 0px 0px 1px $color inset;
+}
+
+@mixin hovertransition {
+    @include box-shadow($background-color);
+
+    transition-delay: 0s;
+    transition-duration: 0.5s;
+    transition-property: all;
+    transition-timing-function: ease;
+
+    &:hover, &:focus, &:active {
+        @include box-shadow($main-color);
+    }
+
+}
+
+input[type=date].day-picker-target::-webkit-calendar-picker-indicator,
+input[type=date].day-picker-target::-webkit-inner-spin-button {
     display: none;
 }
 
 .day-picker {
-    align-items: center;
-    background: white;
-    border: 1px solid #aaa;
+    @include flex;
+    background: $background-color;
+    border: $border-width solid $main-color;
+    border-radius: $day-picker-border-radius;
+    box-shadow: $day-picker-box-shadow;
+    color: $text-color;
     display: none;
     flex-direction: column;
-    font-size: 12px;
-    justify-content: center;
-    padding: 1px;
+    font-family: $font-family;
+    font-size: $font-size;
+    outline: none;
     position: absolute;
-    text-align: center;
     user-select: none;
 
     &.day-picker__active {
@@ -33,77 +78,70 @@ input[type=date].day-picker-target::-webkit-calendar-picker-indicator, input[typ
     }
 
     div {
-        align-items: center;
-        display: flex;
-        justify-content: center;
+        @include flex;
     }
 
     .month-container {
-        flex-flow: row;
         flex-direction: column;
     }
 
     .current-year-month {
+        @include no-overflow;
         flex: 3;
-        margin: 1px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 98px;
-        font-weight: bold;
+        font-size: $font-size-header;
+        width: 3 * $day-container-size + 6 * $day-container-margin;
     }
 
     .weekdays-container {
-        font-weight: bold;
+        font-size: $font-size-subheader;
     }
 
     .weekday-container, .day-container, .previous-year, .previous-month, .next-year, .next-month {
-        height: 30px;
-        margin: 1px;
+        @include no-overflow;
+        border-radius: $day-container-border-radius;
+        height: $day-container-size;
         overflow: hidden;
         text-overflow: ellipsis;
-        width: 30px;
-    }
-
-    .previous-year {
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='10' height='10' viewBox='0 0 20 20'%3e%3cpath fill='%23000000' d='M14 20c0.128 0 0.256-0.049 0.354-0.146 0.195-0.195 0.195-0.512 0-0.707l-8.646-8.646 8.646-8.646c0.195-0.195 0.195-0.512 0-0.707s-0.512-0.195-0.707 0l-9 9c-0.195 0.195-0.195 0.512 0 0.707l9 9c0.098 0.098 0.226 0.146 0.354 0.146z'%3e%3c/path%3e%3c/svg%3e");
-    }
-
-    .next-year {
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='10' height='10' viewBox='0 0 20 20'%3e%3cpath fill='%23000000' d='M5 20c-0.128 0-0.256-0.049-0.354-0.146-0.195-0.195-0.195-0.512 0-0.707l8.646-8.646-8.646-8.646c-0.195-0.195-0.195-0.512 0-0.707s0.512-0.195 0.707 0l9 9c0.195 0.195 0.195 0.512 0 0.707l-9 9c-0.098 0.098-0.226 0.146-0.354 0.146z'%3e%3c/path%3e%3c/svg%3e");
-    }
-
-    .previous-month {
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='20' height='20' viewBox='0 0 20 20'%3e%3cpath fill='%23000000' d='M14 20c0.128 0 0.256-0.049 0.354-0.146 0.195-0.195 0.195-0.512 0-0.707l-8.646-8.646 8.646-8.646c0.195-0.195 0.195-0.512 0-0.707s-0.512-0.195-0.707 0l-9 9c-0.195 0.195-0.195 0.512 0 0.707l9 9c0.098 0.098 0.226 0.146 0.354 0.146z'%3e%3c/path%3e%3c/svg%3e");
-    }
-
-    .next-month {
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='20' height='20' viewBox='0 0 20 20'%3e%3cpath fill='%23000000' d='M5 20c-0.128 0-0.256-0.049-0.354-0.146-0.195-0.195-0.195-0.512 0-0.707l8.646-8.646-8.646-8.646c-0.195-0.195-0.195-0.512 0-0.707s0.512-0.195 0.707 0l9 9c0.195 0.195 0.195 0.512 0 0.707l-9 9c-0.098 0.098-0.226 0.146-0.354 0.146z'%3e%3c/path%3e%3c/svg%3e");
-    }
-
-    .previous-year, .previous-month, .next-year, .next-month {
-        background-position: center;
-        background-repeat: no-repeat;
+        width: $day-container-size;
+        margin: $day-container-margin;
     }
 
     .previous-year, .previous-month, .next-year, .next-month, .day-container:not(.day-container__disabled) {
         cursor: pointer;
 
-        &:hover {
-            background-color: #ddd;
-        }
+        @include hovertransition;
+    }
+
+    .previous-year::before {
+        content: "⇠";
+    }
+
+    .next-year::before {
+        content: "⇢";
+    }
+
+    .previous-month::before {
+        content: "←";
+    }
+
+    .next-month::before {
+        content: "→";
     }
 
     .day-container {
+        font-weight: lighter;
+
         &.day-container__current {
-            background-color: #aaa;
+            background-color: $main-color;
         }
 
         &.day-container__today {
-            box-shadow: 0px 0px 0px 1px #5d0 inset;
+            @include box-shadow($darker-color);
         }
+
         &.day-container__disabled {
             cursor: default;
-            color: #ddd;
+            color: $lighter-color;
         }
     }
 }

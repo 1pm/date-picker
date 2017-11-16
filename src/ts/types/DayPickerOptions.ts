@@ -6,5 +6,6 @@ export interface DayPickerOptions {
     min? : number;
     max? : number;
     hideOnSelect? : boolean;
+    isOpen? : boolean;
     onValueChange? : (value : number, oldValue? : number) => void;
 }

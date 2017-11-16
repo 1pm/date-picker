@@ -39,6 +39,7 @@ function initFromElement(target : HTMLInputElement, options : DayPickerOptions) 
 
 const picker : Array<DayPicker> = dayPicker("input", {
     calendar: "iranian",
+    isOpen: true,
     min: new Date().getTime(),
     onValueChange: (value, oldValue) => {
         console.log("On Value Change", value, oldValue);
