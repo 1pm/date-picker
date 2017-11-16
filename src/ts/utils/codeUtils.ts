@@ -42,3 +42,20 @@ export function filter(a : Array<any>, f : (v : any, i? : number | string) => Ar
 export function leftPad(s : string | number, length : number, c? : string) : string {
     return Array(length + 1 - s.toString().length).join(c ? c[0] : "0") + s;
 }
+
+export function debounce(func, wait) {
+    let timeout;
+
+    // tslint:disable-next-line:only-arrow-functions
+    return function() {
+        const context = this;
+        const args = arguments;
+        const later = () => {
+            timeout = null;
+            func.apply(context, args);
+        };
+
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}

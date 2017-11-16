@@ -5,7 +5,7 @@ import {HTMLDayPickerElement} from "./types/HTMLDayPickerElement";
 import {ElementPosition} from "./types/ElementPosition";
 import {DateParts} from "./types/DateParts";
 import {CLASS_NAMES, HTML_TAGS, EVENTS, SUPPORTED_LOCALES, SUPPORTED_CALENDARS, CALENDARS, LOCALES} from "./constants";
-import {isUndefined, isFunction, isEmpty, contains, filter} from "./utils/codeUtils";
+import {isUndefined, isFunction, isEmpty, contains, filter, debounce} from "./utils/codeUtils";
 import {createElement, addClass, removeClass, getAbsolutePosition, hasClass} from "./utils/domUtils";
 import {isSameDate, changeYear, changeMonth, changeDate, convertToWeeks, isBeforeDate, formatDate, parseDate} from "./utils/dateUtils";
 import {GregorianCalendar} from "./calendars/GregorianCalendar";
@@ -27,6 +27,21 @@ export class DayPicker {
     private onValueChange : (value : number, oldValue? : number) => void;
     private displayedDays : object;
     private currentDay : HTMLDivElement;
+    private onUserType : (e : KeyboardEvent) => void = debounce((e : KeyboardEvent) => {
+        const value : string = (e.target as HTMLInputElement).value;
+        const date : Date = new Date(value);
+
+        if (!isNaN(date.getTime())) {
+            const dateParts : DateParts = this.calendar.toDateParts(parseDate(value, this.calendar));
+            const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
+
+            if (!isSameDate(dateParts, currentDateParts)) {
+                this.setValue(this.calendar.toTimestamp(dateParts));
+            }
+        } else {
+            this.setValue(this.currentValue);
+        }
+    }, 1000);
 
     constructor(target : HTMLDayPickerTargetElement<HTMLInputElement>, options : DayPickerOptions = {}) {
         if (!(target instanceof HTMLInputElement) || !contains(["text", "date"], target.type)) {
@@ -60,6 +75,7 @@ export class DayPicker {
 
     public setValue(value : number) : void {
         if (isBeforeDate(value, this.min) || isBeforeDate(this.max, value)) {
+            this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
             return;
         }
 
@@ -226,7 +242,7 @@ export class DayPicker {
         }
     }
 
-    // Key Code: 27 - ESC, 37 - Left, 38 - Up, 39 - Right, 40 - Down
+    // Key Code: 9 - TAB, 13 - ENTER, 16 - SHIFT, 17- CTRL, 18 - ALT, 20 - CAPS, 27 - ESC, 37 - Left, 38 - Up, 39 - Right, 40 - Down, 91 + 93 - CMD
     private onKeydown(e : KeyboardEvent) : void {
         const displayedDateParts : DateParts = this.calendar.toDateParts(this.displayedValue);
         const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
@@ -260,11 +276,8 @@ export class DayPicker {
             }
         } else if (e.keyCode === 40) {
             this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, 7, this.calendar)));
-        // // TODO: Implement
-        // } else if (e.target === this.target) {
-        //     debounce(() => {
-        //         console.log(new Date(e.target.value), Date.parse(e.target.value));
-        //     }, 1000)();
+        } else if (e.target === this.target && !contains([9, 13, 16, 17, 18, 20, 91, 93], e.keyCode)) {
+            this.onUserType(e);
         }
     }
 
@@ -390,12 +403,12 @@ export class DayPicker {
             addClass(dayContainer, CLASS_NAMES.DAY_CONTAINER_DISABLED);
         }
 
-        if (!isSameDate(currentDateParts, displayedDateParts)) {
+        if (isSameDate(currentDateParts, displayedDateParts)) {
             addClass(dayContainer, CLASS_NAMES.DAY_CONTAINER_CURRENT);
             this.currentDay = dayContainer;
         }
 
-        if (!isSameDate(todayDateParts, displayedDateParts)) {
+        if (isSameDate(todayDateParts, displayedDateParts)) {
             addClass(dayContainer, CLASS_NAMES.DAY_CONTAINER_TODAY);
         }
 

@@ -1,6 +1,6 @@
 import {DateParts} from "../types/DateParts";
 import {Calendar} from "../types/Calendar";
-import {leftPad} from "./codeUtils";
+import {leftPad, isEmpty} from "./codeUtils";
 
 function cloneDateParts(dp : DateParts) : DateParts {
     return (Object as any).assign({}, dp);
@@ -25,7 +25,7 @@ export function convertToWeeks(weekdaysInMonth : Array<number>) : Array<Array<nu
 }
 
 export function isSameDate(dp1 : DateParts, dp2 : DateParts) : boolean {
-    return dp1.year !== dp2.year || dp1.month !== dp2.month || dp1.date !== dp2.date;
+    return dp1.year === dp2.year && dp1.month === dp2.month && dp1.date === dp2.date;
 }
 
 export function changeYear(dp : DateParts, modifier : number) : DateParts {
@@ -63,16 +63,16 @@ export function changeDate(dp : DateParts, modifier : number, calendar : Calenda
 }
 
 export function parseDate(dateString : string, calendar : Calendar) : number {
-    const parts : Array<string> = dateString.split("-");
-
-    if (parts.length !== 3) {
+    if (isEmpty(dateString)) {
         return;
     }
 
+    const date : Date = new  Date(dateString);
+
     return calendar.toTimestamp({
-        year: Number(parts[0]),
-        month: Number(parts[1]),
-        date: Number(parts[2]),
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        date: date.getDate(),
     });
 }
 
