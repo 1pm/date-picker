@@ -69,7 +69,7 @@ export class DayPicker {
 
     public setValue(value : number) : void {
         if (isBeforeDate(value, this.min) || isBeforeDate(this.max, value)) {
-            this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
+            this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.format);
             return;
         }
 
@@ -78,7 +78,7 @@ export class DayPicker {
         }
 
         this.currentValue = value;
-        this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
+        this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.format);
 
         this.setDisplayedValue(value);
     }
@@ -187,7 +187,7 @@ export class DayPicker {
         }
 
         if (this.currentValue) {
-            this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
+            this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.format);
         }
 
         window.document.body.appendChild(this.root);

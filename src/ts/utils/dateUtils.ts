@@ -76,14 +76,28 @@ export function parseDate(dateString : string, calendar : Calendar) : number {
     });
 }
 
-// TODO: Implement
-export function formatDate(ts : number, targetType : string, calendar : Calendar, locale? : string) : string {
+export function formatDate(ts : number, targetType : string, calendar : Calendar, format : string) : string {
     const dp : DateParts = calendar.toDateParts(ts);
+    const year : string = dp.year.toString();
+    const month : string = dp.month.toString();
+    const date : string = dp.date.toString();
 
     // Format `YYYY-MM-DD` is required for <input type="date">
-    // if (targetType === "date") {
+    if (targetType === "date") {
         return `${dp.year}-${leftPad(dp.month, 2)}-${leftPad(dp.date, 2)}`;
-    // }
+    }
 
-    // return
+    return format
+        .replace("YYYY", year)
+        .replace("YY", year.slice(-2))
+        .replace("Y", year.slice(-2))
+        .replace("MMMM", calendar.getMonthName(dp.month))
+        .replace("MMM", calendar.getMonthName(dp.month).substring(0, 3))
+        .replace("MM", leftPad(dp.month, 2))
+        .replace("MM", month)
+        .replace("dddd", calendar.getWeekdayName(calendar.getWeekday(ts)))
+        .replace("ddd", calendar.getWeekdayName(calendar.getWeekday(ts)).substring(0, 3))
+        .replace("dd", calendar.getWeekdayName(calendar.getWeekday(ts)).substring(0, 2))
+        .replace("DD", leftPad(dp.date, 2))
+        .replace("D", date);
 }

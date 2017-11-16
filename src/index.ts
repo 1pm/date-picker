@@ -38,7 +38,8 @@ function initFromElement(target : HTMLInputElement, options : DayPickerOptions) 
 }
 
 const picker : Array<DayPicker> = dayPicker("input", {
-    calendar: "iranian",
+    calendar: "gregorian",
+    format: "YYYY/MM/DD - dddd MMMM",
     min: new Date().getTime(),
     disableOnMobileDate: false,
     onValueChange: (value, oldValue) => {
