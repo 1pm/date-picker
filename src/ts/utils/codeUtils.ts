@@ -1,14 +1,21 @@
+export function isUndefined(o : any) : boolean {
+    return typeof o === "undefined";
+}
 
 export const isArray : (o : any) => boolean = Array.isArray || function name(o : any): boolean {
     return toString.call(o) === "[object Array]";
 };
 
-export function isUndefined(o : any) : boolean {
-    return typeof o === "undefined";
+export function isString(o : any) : boolean {
+    return toString.call(o) === "[object String]";
 }
 
-export function isString(o : any) : boolean {
-    return typeof o === "string";
+export function isNumber(o : any) : boolean {
+    return toString.call(o) === "[object Number]" && !isNaN(o);
+}
+
+export function isBoolean(o : any) : boolean {
+    return toString.call(o) === "[object Boolean]";
 }
 
 export function isFunction(o : any) : boolean {

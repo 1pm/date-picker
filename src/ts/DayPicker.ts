@@ -5,7 +5,7 @@ import {HTMLDayPickerElement} from "./types/HTMLDayPickerElement";
 import {ElementPosition} from "./types/ElementPosition";
 import {DateParts} from "./types/DateParts";
 import {CLASS_NAMES, HTML_TAGS, EVENTS, SUPPORTED_LOCALES, SUPPORTED_CALENDARS, CALENDARS, LOCALES} from "./constants";
-import {isUndefined, isFunction, isEmpty, contains, filter, debounce} from "./utils/codeUtils";
+import {isUndefined, isFunction, isEmpty, contains, filter, debounce, isString, isNumber, isBoolean} from "./utils/codeUtils";
 import {createElement, addClass, removeClass, getAbsolutePosition, hasClass} from "./utils/domUtils";
 import {isSameDate, changeYear, changeMonth, changeDate, convertToWeeks, isBeforeDate, formatDate, parseDate} from "./utils/dateUtils";
 import {GregorianCalendar} from "./calendars/GregorianCalendar";
@@ -161,16 +161,16 @@ export class DayPicker {
 
     private init(options : DayPickerOptions) : void {
         this.locale = this.getPreferedLocale(options.locale);
-        this.format = options.format || "YYYY-MM-DD";
+        this.format = isString(options.format) ? options.format : "YYYY-MM-DD";
         this.calendar = this.getPreferedCalendar(options.calendar);
         this.min = (this.target as any).min || options.min;
         this.max = (this.target as any).max || options.max;
-        this.ishideOnSelect = options.hideOnSelect || true;
+        this.ishideOnSelect = isBoolean(options.hideOnSelect) ? options.hideOnSelect : true;
 
         this.root = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.DAY_PICKER);
         this.root.tabIndex = -1;
         this.isRootVisible = false;
-        this.currentValue = options.value || parseDate(this.target.value, this.calendar) || Date.now();
+        this.currentValue = isNumber(options.value) ? options.value : (parseDate(this.target.value, this.calendar) || Date.now());
         this.displayedValue = this.currentValue;
 
         if (isFunction(options.onValueChange)) {
