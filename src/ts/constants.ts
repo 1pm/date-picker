@@ -25,6 +25,7 @@ export const HTML_TAGS = {
 export const EVENTS = {
     MOUDOWN: "mousedown",
     KEYDOWN: "keydown",
+    BEFORE_UNLOAD: "beforeunload",
 };
 
 export const LOCALES = {

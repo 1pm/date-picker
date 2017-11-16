@@ -27,21 +27,8 @@ export class DayPicker {
     private onValueChange : (value : number, oldValue? : number) => void;
     private displayedDays : object;
     private currentDay : HTMLDivElement;
-    private onUserType : (e : KeyboardEvent) => void = debounce((e : KeyboardEvent) => {
-        const value : string = (e.target as HTMLInputElement).value;
-        const date : Date = new Date(value);
-
-        if (!isNaN(date.getTime())) {
-            const dateParts : DateParts = this.calendar.toDateParts(parseDate(value, this.calendar));
-            const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
-
-            if (!isSameDate(dateParts, currentDateParts)) {
-                this.setValue(this.calendar.toTimestamp(dateParts));
-            }
-        } else {
-            this.setValue(this.currentValue);
-        }
-    }, 1000);
+    private debouncedOnUserType : (e : KeyboardEvent) => void;
+    private listeners : Array<any>;
 
     constructor(target : HTMLDayPickerTargetElement<HTMLInputElement>, options : DayPickerOptions = {}) {
         if (!(target instanceof HTMLInputElement) || !contains(["text", "date"], target.type)) {
@@ -55,6 +42,8 @@ export class DayPicker {
         this.target = target;
         this.target.dayPicker = this;
         addClass(this.target, CLASS_NAMES.DAY_PICKER_TARGET);
+        this.debouncedOnUserType = debounce(this.onUserType, 1000);
+        this.listeners = new Array();
 
         this.init(options);
     }
@@ -93,6 +82,12 @@ export class DayPicker {
         this.displayedValue = value;
 
         this.updateRoot(shouldDisplay);
+    }
+
+    public destroy() : void {
+        this.removeListeners();
+        this.target.dayPicker = null;
+        this.root.parentElement.removeChild(this.root);
     }
 
     private getPreferedLocale(locale : string) : string {
@@ -172,8 +167,9 @@ export class DayPicker {
         this.max = (this.target as any).max || options.max;
         this.ishideOnSelect = options.hideOnSelect || true;
 
-        this.isRootVisible = false;
         this.root = createElement<HTMLDivElement>(HTML_TAGS.DIV, CLASS_NAMES.DAY_PICKER);
+        this.root.tabIndex = -1;
+        this.isRootVisible = false;
         this.currentValue = options.value || parseDate(this.target.value, this.calendar) || Date.now();
         this.displayedValue = this.currentValue;
 
@@ -189,17 +185,36 @@ export class DayPicker {
             this.target.value = formatDate(this.currentValue, this.target.type, this.calendar, this.locale);
         }
 
-        this.target.addEventListener(EVENTS.MOUDOWN, this.onInputClick.bind(this));
-        this.target.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
-
-        this.root.tabIndex = -1;
-        this.root.addEventListener(EVENTS.MOUDOWN, this.onRootClick.bind(this));
-        this.root.addEventListener(EVENTS.KEYDOWN, this.onKeydown.bind(this));
-
-        window.document.body.addEventListener(EVENTS.MOUDOWN, this.onBodyClick.bind(this));
         window.document.body.appendChild(this.root);
 
+        this.addListeners();
         this.renderRoot();
+    }
+
+    private addListeners() : void {
+        this.addListener(this.target, EVENTS.MOUDOWN, this.onInputClick);
+        this.addListener(this.target, EVENTS.KEYDOWN, this.onKeydown);
+        this.addListener(window.document.body, EVENTS.BEFORE_UNLOAD, this.removeListeners);
+
+        this.addListener(this.root, EVENTS.MOUDOWN, this.onRootClick);
+        this.addListener(this.root, EVENTS.KEYDOWN, this.onKeydown);
+
+        this.addListener(window.document.body, EVENTS.MOUDOWN, this.onBodyClick);
+    }
+
+    private addListener(element : HTMLElement, event : string, f : (e : Event) => void) : void {
+        const fn = f.bind(this);
+        element.addEventListener(event, fn);
+        this.listeners.push({element, event, fn});
+    }
+
+    private removeListeners() : void {
+        for (let i = 0; i < this.listeners.length; i++) {
+            const listener : any = this.listeners[i];
+
+            listener.element.removeEventListener(listener.event, listener.fn);
+
+        }
     }
 
     private onInputClick(e : MouseEvent) : void {
@@ -278,7 +293,23 @@ export class DayPicker {
         } else if (e.keyCode === 40) {
             this.setValue(this.calendar.toTimestamp(changeDate(currentDateParts, 7, this.calendar)));
         } else if (e.target === this.target && !contains([9, 13, 16, 17, 18, 20, 91, 93], e.keyCode)) {
-            this.onUserType(e);
+            this.debouncedOnUserType(e);
+        }
+    }
+
+    private onUserType(e : KeyboardEvent) {
+        const value : string = (e.target as HTMLInputElement).value;
+        const date : Date = new Date(value);
+
+        if (!isNaN(date.getTime())) {
+            const dateParts : DateParts = this.calendar.toDateParts(parseDate(value, this.calendar));
+            const currentDateParts : DateParts = this.calendar.toDateParts(this.currentValue);
+
+            if (!isSameDate(dateParts, currentDateParts)) {
+                this.setValue(this.calendar.toTimestamp(dateParts));
+            }
+        } else {
+            this.setValue(this.currentValue);
         }
     }
 
